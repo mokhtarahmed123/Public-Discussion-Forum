@@ -7,7 +7,14 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <PackageReference Include="MediatR" Version="14.2.0" />
     <PackageReference Include="Swashbuckle.AspNetCore" Version="6.6.2" />
+    <PackageReference Include="Swashbuckle.AspNetCore.Annotations" Version="6.6.0-preview.322" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\VotesService.Application\VotesService.Application\VotesService.Application.csproj" />
+    <ProjectReference Include="..\VotesService.Infrastructure\VotesService.Infrastructure\VotesService.Infrastructure.csproj" />
   </ItemGroup>
 
 </Project>

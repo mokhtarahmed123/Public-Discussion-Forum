@@ -1,4 +1,4 @@
-
+using VotesService.Application;
 namespace VotesService.API
 {
     public class Program
@@ -7,16 +7,25 @@ namespace VotesService.API
         {
             var builder = WebApplication.CreateBuilder(args);
 
-            // Add services to the container.
 
-            builder.Services.AddControllers();
-            // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
+            builder.Services.AddControllers(options =>
+            {
+                options.SuppressImplicitRequiredAttributeForNonNullableReferenceTypes = true;
+            });
+
             builder.Services.AddEndpointsApiExplorer();
-            builder.Services.AddSwaggerGen();
+            builder.Services.AddSwaggerGen(options =>
+            {
+                options.EnableAnnotations();
+            });
+
+            builder.Services.AddModuleApiDependencies(builder.Configuration).
+                AddApplicationDependencies(builder.Configuration).
+                AddInfrastructureDependencies(builder.Configuration);
 
             var app = builder.Build();
 
-            // Configure the HTTP request pipeline.
+
             if (app.Environment.IsDevelopment())
             {
                 app.UseSwagger();

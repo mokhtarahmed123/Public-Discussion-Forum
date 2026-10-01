@@ -6,4 +6,13 @@
     <Nullable>enable</Nullable>
   </PropertyGroup>
 
+  <ItemGroup>
+    <PackageReference Include="MongoDB.Driver" Version="3.12.0" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\VotesService.Application\VotesService.Application\VotesService.Application.csproj" />
+    <ProjectReference Include="..\..\VotesService.Domain\VotesService.Domain\VotesService.Domain.csproj" />
+  </ItemGroup>
+
 </Project>
