@@ -7,7 +7,9 @@ using Microsoft.OpenApi.Models;
 using System.Collections.Concurrent;
 using System.Text;
 using UserService.Application.dtos;
+using UserService.Application.ExternalLogin;
 using UserService.Application.Feature.Authentication;
+using UserService.Application.Feature.Google;
 using UserService.Application.Feature.Roles;
 using UserService.Domain.Entities;
 using UserService.Domain.Helper;
@@ -16,6 +18,7 @@ using UserService.Infrastructure.Abstract.Authorization;
 using UserService.Infrastructure.Abstract.Role;
 using UserService.Infrastructure.Context;
 using UserService.Infrastructure.Email;
+using UserService.Infrastructure.ExternalLoginImple;
 using UserService.Infrastructure.InfrastructureBases;
 using UserService.Infrastructure.Logging;
 namespace UserService.Infrastructure
@@ -26,6 +29,7 @@ namespace UserService.Infrastructure
         {
 
             services.AddTransient(typeof(IGenericRepositoryAsync<>), typeof(GenericRepositoryAsync<>));
+
             services.Configure<JWTModel>(
                 Configuration.GetSection("JWT"));
             #region Swagger
@@ -142,8 +146,9 @@ namespace UserService.Infrastructure
             services.AddScoped<ICurrentUserService, CurrentUserService>();
             services.AddScoped<IRoleService, RoleService>();
             services.AddScoped<IUnitOfWork, UnitOfWork>();
-
+            services.AddScoped<IGoogleAuthService, GoogleAuthService>();
             services.Configure<EmailSettings>(Configuration.GetSection("Email"));
+            services.Configure<GoogleModelConfiguration>(Configuration.GetSection("Google"));
             services.AddSingleton<
          ConcurrentDictionary<string, RefreshToken>>();
             services.AddScoped<IRoleService, RoleService>();

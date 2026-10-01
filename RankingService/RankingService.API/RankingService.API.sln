@@ -5,8 +5,6 @@ VisualStudioVersion = 17.14.37531.7
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "RankingService.API", "RankingService.API\RankingService.API.csproj", "{A083EA5C-2FCC-49F3-B56D-26329627E6E4}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "RankingService.Data", "RankingService.Data\RankingService.Data\RankingService.Data.csproj", "{833D6992-2348-4DAE-8F27-DE35DC4A9672}"
-EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "RankingService.Domain", "RankingService.Domain\RankingService.Domain\RankingService.Domain.csproj", "{1A0A7540-E42B-437B-B944-5204C229A864}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "RankingService.Application", "RankingService.Application\RankingService.Application\RankingService.Application.csproj", "{09FE2F07-E859-4CFA-A780-60D4395DF5ED}"
@@ -23,10 +21,6 @@ Global
 		{A083EA5C-2FCC-49F3-B56D-26329627E6E4}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{A083EA5C-2FCC-49F3-B56D-26329627E6E4}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{A083EA5C-2FCC-49F3-B56D-26329627E6E4}.Release|Any CPU.Build.0 = Release|Any CPU
-		{833D6992-2348-4DAE-8F27-DE35DC4A9672}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{833D6992-2348-4DAE-8F27-DE35DC4A9672}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{833D6992-2348-4DAE-8F27-DE35DC4A9672}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{833D6992-2348-4DAE-8F27-DE35DC4A9672}.Release|Any CPU.Build.0 = Release|Any CPU
 		{1A0A7540-E42B-437B-B944-5204C229A864}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{1A0A7540-E42B-437B-B944-5204C229A864}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{1A0A7540-E42B-437B-B944-5204C229A864}.Release|Any CPU.ActiveCfg = Release|Any CPU

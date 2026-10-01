@@ -6,4 +6,19 @@
     <Nullable>enable</Nullable>
   </PropertyGroup>
 
+  <ItemGroup>
+    <ProjectReference Include="..\..\RankingService.Application\RankingService.Application\RankingService.Application.csproj" />
+    <ProjectReference Include="..\..\RankingService.Domain\RankingService.Domain\RankingService.Domain.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Folder Include="InfrastructureBases\" />
+    <Folder Include="DataBaseConfiguration\" />
+    <Folder Include="ServiceImplementation\" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="MongoDB.Driver" Version="3.12.0" />
+  </ItemGroup>
+
 </Project>

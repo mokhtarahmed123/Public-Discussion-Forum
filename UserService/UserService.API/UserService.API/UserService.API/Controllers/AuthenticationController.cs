@@ -7,6 +7,7 @@ using UserService.Application.Feature.Authentication.Command.Model;
 using UserService.Application.Feature.Authentication.Query.Model;
 using UserService.Application.Feature.Emails.Command.Model;
 using UserService.Application.Feature.Emails.Query.Model;
+using UserService.Application.Feature.Google.Command.Model;
 
 namespace UserService.API.Controllers
 {
@@ -145,6 +146,18 @@ namespace UserService.API.Controllers
         {
             var response = await Mediator.Send(new MyProfileQuery());
             return NewResult(response);
+        }
+
+        [HttpPost("google-login")]
+        [SwaggerOperation(Summary = "Logs in using Google", Description = "Authenticates a user using a Google ID token.")]
+        [SwaggerResponse(200, "Google login successful", type: typeof(JWTAuthResponse))]
+        [SwaggerResponse(400, "Invalid Google token")]
+        [SwaggerResponse(401, "Google authentication failed")]
+        [SwaggerResponse(500, "An unexpected error occurred")]
+        public async Task<IActionResult> GoogleLogin(GoogleLoginDto dto)
+        {
+            var result = await Mediator.Send(new GoogleLoginCommand(dto.IdToken));
+            return NewResult(result);
         }
 
 
