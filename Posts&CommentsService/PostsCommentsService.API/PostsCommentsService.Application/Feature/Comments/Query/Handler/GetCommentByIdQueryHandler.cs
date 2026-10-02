@@ -20,7 +20,7 @@ namespace PostsCommentsService.Application.Feature.Comments.Query.Handler
 
         public async Task<Response<GetCommentByIdResult>> Handle(GetCommentByIdQuery request, CancellationToken cancellationToken)
         {
-            var comment = await commentsService.GetByIdAsync(request.CommentId, cancellationToken);
+            var comment = await commentsService.GetByIdAsync(request.CommentId, request.PostId, cancellationToken);
 
             if (comment is null || comment.IsDeleted)
                 return NotFound<GetCommentByIdResult>("الكومنت مش موجود.");

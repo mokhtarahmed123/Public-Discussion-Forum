@@ -19,14 +19,24 @@ namespace PostsCommentsService.Infrastructure.ServiceImplementaion
             return await commentsRepository.AddAsync(comment, cancellationToken);
         }
 
-        public async Task<bool> DeleteAsync(string id, Guid userId, CancellationToken cancellationToken)
+        public Task AddImagesAsync(string CommentId, List<string> imageUrls, CancellationToken cancellationToken)
         {
-            var existing = await commentsRepository.GetByIdAsync(c => c.Id == id, cancellationToken);
+            return commentsRepository.AddImagesAsync(CommentId, imageUrls, cancellationToken);
+        }
+
+        public async Task<bool> DeleteAsync(string id, string PostId, Guid userId, CancellationToken cancellationToken)
+        {
+            var existing = await commentsRepository.GetByIdAsync(c => c.Id == id && c.PostId == PostId, cancellationToken);
             if (existing is null)
                 return false;
 
             await commentsRepository.DeleteAsync(existing, cancellationToken);
             return true;
+        }
+
+        public async Task<Comment?> GetByIdAsync(string id, string PostId, CancellationToken cancellationToken)
+        {
+            return await commentsRepository.GetByIdAsync(c => c.Id == id && c.PostId == PostId, cancellationToken);
         }
 
         public async Task<Comment?> GetByIdAsync(string id, CancellationToken cancellationToken)
@@ -50,6 +60,12 @@ namespace PostsCommentsService.Infrastructure.ServiceImplementaion
                 .Where(c => c.UserId == userId)
                 .OrderByDescending(c => c.CreatedAt)
                 .ToListAsync(cancellationToken);
+        }
+
+        public Task<List<Comment>> GetImagesByCommentIdAsync(string commentId, CancellationToken cancellationToken)
+        {
+            return commentsRepository.GetImagesByCommentIdAsync(commentId, cancellationToken);
+
         }
 
         public async Task<List<Comment>> GetRepliesAsync(string parentCommentId, int page, int pageSize, CancellationToken cancellationToken)

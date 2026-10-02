@@ -9,65 +9,114 @@ using VotesService.Domain.Enum;
 
 namespace VotesService.API.Controllers
 {
-    [Route("api/[controller]")]
+    [Route("api")]
     [ApiController]
     public class VoteController : AppBaseController
     {
-        [HttpPost]
 
+
+        [HttpPost("posts/{postId}/vote")]
         [SwaggerOperation(
-            Summary = "Votes on a post or comment",
+            Summary = "Votes on a post",
             Description = "Adds a new vote, changes an existing vote, or removes it (toggle) when the same vote type is sent again.")]
         [SwaggerResponse(200, "Vote added, changed, or removed successfully", type: typeof(Response<string>))]
         [SwaggerResponse(400, "Invalid vote data or voting is locked", type: typeof(Response<string>))]
+        [SwaggerResponse(404, "Post not found", type: typeof(Response<string>))]
         [SwaggerResponse(500, "An unexpected error occurred")]
-
-        public async Task<IActionResult> Vote([FromBody] VoteCommand command, CancellationToken cancellationToken)
+        public async Task<IActionResult> VotePost(string postId, [FromBody] VotePostCommand command, CancellationToken cancellationToken)
         {
-            command.UserId = new Guid("11111111-1111-1111-1111-111111111111"); //    Auth
+            command.TargetId = postId;
             return NewResult(await Mediator.Send(command, cancellationToken));
         }
-        [HttpGet("summary")]
+
+        [HttpGet("posts/{postId}/vote")]
         [SwaggerOperation(
-            Summary = "Gets the vote summary of a post or comment",
-            Description = "Returns the number of up votes, down votes, and the final score for the given target.")]
+            Summary = "Gets the vote summary of a post",
+            Description = "Returns the number of up votes, down votes, and the final score.")]
         [SwaggerResponse(200, "Vote summary retrieved successfully", type: typeof(Response<GetVoteSummaryResult>))]
-        [SwaggerResponse(400, "Invalid target id", type: typeof(Response<GetVoteSummaryResult>))]
+        [SwaggerResponse(400, "Invalid post id", type: typeof(Response<GetVoteSummaryResult>))]
         [SwaggerResponse(500, "An unexpected error occurred")]
-        public async Task<IActionResult> GetSummary(
-        [FromQuery] VoteTargetType targetType,
-    [FromQuery] string targetId,
-    CancellationToken cancellationToken)
-        {
-            return NewResult(await Mediator.Send(new GetVoteSummaryQuery(targetType, targetId), cancellationToken));
-        }
+        public async Task<IActionResult> GetPostSummary(string postId, CancellationToken cancellationToken)
+            => NewResult(await Mediator.Send(new GetVoteSummaryQuery(VoteTargetType.Post, postId), cancellationToken));
 
-        [HttpGet("mine")]
+        [HttpGet("posts/{postId}/vote/mine")]
         [SwaggerOperation(
-            Summary = "Gets the current user's vote",
-            Description = "Returns the vote type of the current user on the given target. The type is null if the user has not voted.")]
+            Summary = "Gets a user's vote on a post",
+            Description = "Returns the vote type of the given user. The type is null if the user has not voted.")]
         [SwaggerResponse(200, "User vote retrieved successfully", type: typeof(Response<GetUserVoteResult>))]
-        [SwaggerResponse(400, "Invalid target id or user", type: typeof(Response<GetUserVoteResult>))]
+        [SwaggerResponse(400, "Invalid post id or user", type: typeof(Response<GetUserVoteResult>))]
         [SwaggerResponse(500, "An unexpected error occurred")]
-        public async Task<IActionResult> GetMyVote(
-            [FromQuery] VoteTargetType targetType,
-            [FromQuery] string targetId,
-            CancellationToken cancellationToken)
+        public async Task<IActionResult> GetMyPostVote(string postId, [FromQuery] Guid userId, CancellationToken cancellationToken)
+            => NewResult(await Mediator.Send(new GetUserVoteQuery(VoteTargetType.Post, postId, userId), cancellationToken));
+
+        [HttpPatch("posts/{postId}/vote/lock")]
+        [SwaggerOperation(
+            Summary = "Locks or unlocks voting on a post",
+            Description = "Only the post owner can lock or unlock. Set isLocked to true to lock, or false to unlock.")]
+        [SwaggerResponse(200, "Lock state updated successfully", type: typeof(Response<bool>))]
+        [SwaggerResponse(400, "Invalid post id", type: typeof(Response<bool>))]
+        [SwaggerResponse(403, "Only the owner can lock or unlock voting", type: typeof(Response<bool>))]
+        [SwaggerResponse(404, "Post not found", type: typeof(Response<bool>))]
+        [SwaggerResponse(500, "An unexpected error occurred")]
+        public async Task<IActionResult> LockPost(string postId, [FromBody] LockVoteCommand command, CancellationToken cancellationToken)
         {
-            var userId = new Guid("11111111-1111-1111-1111-111111111111");
-            return NewResult(await Mediator.Send(new GetUserVoteQuery(targetType, targetId, userId), cancellationToken));
+            command.TargetType = VoteTargetType.Post;
+            command.TargetId = postId;
+            command.PostId = postId;
+            return NewResult(await Mediator.Send(command, cancellationToken));
         }
 
-        [HttpPatch("lock")]
+        // ===================== Comments =====================
+
+        [HttpPost("posts/{postId}/comments/{commentId}/vote")]
         [SwaggerOperation(
-            Summary = "Locks or unlocks voting on a post or comment",
-            Description = "Set isLocked to true to lock voting, or false to unlock it.")]
-        [SwaggerResponse(200, "Lock state updated successfully", type: typeof(Response<bool>))]
-        [SwaggerResponse(400, "Invalid target id", type: typeof(Response<bool>))]
+            Summary = "Votes on a comment",
+            Description = "Adds a new vote, changes an existing vote, or removes it (toggle) when the same vote type is sent again.")]
+        [SwaggerResponse(200, "Vote added, changed, or removed successfully", type: typeof(Response<string>))]
+        [SwaggerResponse(400, "Invalid vote data or voting is locked", type: typeof(Response<string>))]
+        [SwaggerResponse(404, "Comment not found", type: typeof(Response<string>))]
         [SwaggerResponse(500, "An unexpected error occurred")]
-        public async Task<IActionResult> Lock([FromBody] LockVoteCommand command, CancellationToken cancellationToken)
+        public async Task<IActionResult> VoteComment(string postId, string commentId, [FromBody] VoteCommentCommand command, CancellationToken cancellationToken)
         {
-            command.UserId = new Guid("11111111-1111-1111-1111-111111111111"); // Auth
+            command.PostId = postId;
+            command.TargetId = commentId;
+            return NewResult(await Mediator.Send(command, cancellationToken));
+        }
+
+        [HttpGet("posts/{postId}/comments/{commentId}/vote")]
+        [SwaggerOperation(
+            Summary = "Gets the vote summary of a comment",
+            Description = "Returns the number of up votes, down votes, and the final score.")]
+        [SwaggerResponse(200, "Vote summary retrieved successfully", type: typeof(Response<GetVoteSummaryResult>))]
+        [SwaggerResponse(400, "Invalid comment id", type: typeof(Response<GetVoteSummaryResult>))]
+        [SwaggerResponse(500, "An unexpected error occurred")]
+        public async Task<IActionResult> GetCommentSummary(string postId, string commentId, CancellationToken cancellationToken)
+            => NewResult(await Mediator.Send(new GetVoteSummaryQuery(VoteTargetType.Comment, commentId), cancellationToken));
+
+        [HttpGet("posts/{postId}/comments/{commentId}/vote/mine")]
+        [SwaggerOperation(
+            Summary = "Gets a user's vote on a comment",
+            Description = "Returns the vote type of the given user. The type is null if the user has not voted.")]
+        [SwaggerResponse(200, "User vote retrieved successfully", type: typeof(Response<GetUserVoteResult>))]
+        [SwaggerResponse(400, "Invalid comment id or user", type: typeof(Response<GetUserVoteResult>))]
+        [SwaggerResponse(500, "An unexpected error occurred")]
+        public async Task<IActionResult> GetMyCommentVote(string postId, string commentId, [FromQuery] Guid userId, CancellationToken cancellationToken)
+            => NewResult(await Mediator.Send(new GetUserVoteQuery(VoteTargetType.Comment, commentId, userId), cancellationToken));
+
+        [HttpPatch("posts/{postId}/comments/{commentId}/vote/lock")]
+        [SwaggerOperation(
+            Summary = "Locks or unlocks voting on a comment",
+            Description = "Only the comment owner can lock or unlock. Set isLocked to true to lock, or false to unlock.")]
+        [SwaggerResponse(200, "Lock state updated successfully", type: typeof(Response<bool>))]
+        [SwaggerResponse(400, "Invalid post or comment id", type: typeof(Response<bool>))]
+        [SwaggerResponse(403, "Only the owner can lock or unlock voting", type: typeof(Response<bool>))]
+        [SwaggerResponse(404, "Comment not found", type: typeof(Response<bool>))]
+        [SwaggerResponse(500, "An unexpected error occurred")]
+        public async Task<IActionResult> LockComment(string postId, string commentId, [FromBody] LockVoteCommand command, CancellationToken cancellationToken)
+        {
+            command.TargetType = VoteTargetType.Comment;
+            command.TargetId = commentId;
+            command.PostId = postId;
             return NewResult(await Mediator.Send(command, cancellationToken));
         }
     }

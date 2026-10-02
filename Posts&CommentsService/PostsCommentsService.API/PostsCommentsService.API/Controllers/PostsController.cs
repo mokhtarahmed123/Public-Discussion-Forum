@@ -1,7 +1,8 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using PostsCommentsService.API.Bases;
 using PostsCommentsService.Application.Feature.Comments.Command.Model;
-using PostsCommentsService.Application.Feature.Comments.Query.Model;
+using PostsCommentsService.Application.Feature.Images.Command.Model;
+using PostsCommentsService.Application.Feature.Images.Query.Model;
 using PostsCommentsService.Application.Feature.Posts.Query.Model;
 
 namespace PostsCommentsService.API.Controllers
@@ -17,17 +18,13 @@ namespace PostsCommentsService.API.Controllers
         public async Task<IActionResult> Create([FromBody] CreatePostCommand command, CancellationToken cancellationToken)
         {
 
-            command.UserId = Guid.Parse("11111111-1111-1111-1111-111111111111");
-
             var response = await Mediator.Send(command, cancellationToken);
             return NewResult(response);
         }
 
         [HttpDelete("{id}")]
-        public async Task<IActionResult> Delete(string id, CancellationToken cancellationToken)
+        public async Task<IActionResult> Delete(string id, [FromBody] Guid userId, CancellationToken cancellationToken)
         {
-            var userId = Guid.Parse("11111111-1111-1111-1111-111111111111"); // مؤقت لحد الـ Auth
-
             var response = await Mediator.Send(new DeletePostCommand(id, userId), cancellationToken);
             return NewResult(response);
         }
@@ -35,8 +32,6 @@ namespace PostsCommentsService.API.Controllers
         public async Task<IActionResult> Update(string id, [FromBody] UpdatePostCommand command, CancellationToken cancellationToken)
         {
             command.Id = id;
-            command.UserId = Guid.Parse("11111111-1111-1111-1111-111111111111");
-
             var response = await Mediator.Send(command, cancellationToken);
             return NewResult(response);
         }
@@ -64,10 +59,43 @@ namespace PostsCommentsService.API.Controllers
         {
             return NewResult(await Mediator.Send(new GetPostsByUserQuery(userId), cancellationToken));
         }
-        [HttpGet("{id}/replies")]
-        public async Task<IActionResult> GetReplies(string id, [FromQuery] int page = 1, [FromQuery] int pageSize = 10, CancellationToken cancellationToken = default)
+        //[HttpGet("{id}/replies")]
+        //public async Task<IActionResult> GetReplies(string id, [FromQuery] int page = 1, [FromQuery] int pageSize = 10, CancellationToken cancellationToken = default)
+        //{
+        //    return NewResult(await Mediator.Send(new GetRepliesCommentsQuery(id, "", page, pageSize), cancellationToken));
+        //}
+
+        [HttpPost("UploadImages/{postId}")]
+        //[Authorize]
+        [Consumes("multipart/form-data")]
+        [RequestSizeLimit(30_000_000)]
+        public async Task<IActionResult> UploadImages(
+    string postId,
+    [FromForm] List<IFormFile> files,
+          CancellationToken cancellationToken)
         {
-            return NewResult(await Mediator.Send(new GetRepliesQuery(id, page, pageSize), cancellationToken));
+            var command = new UploadImagesPostCommand
+            {
+                PostId = postId,
+                Files = files
+            };
+
+            var result = await Mediator.Send(command, cancellationToken);
+            return NewResult(result);
         }
+        [HttpGet("posts/{postId}/images")]
+        public async Task<IActionResult> GetImagesByPostId(string postId, CancellationToken ct)
+        {
+            var response = await Mediator.Send(new GetImagesByPostIdQuery(postId), ct);
+            return StatusCode((int)response.StatusCode, response);
+        }
+
+        // GET api/posts/{postId}/images/{id}
+        //[HttpGet("posts/{postId}/images/{id}")]
+        //public async Task<IActionResult> GetImageById(string postId, string id, CancellationToken ct)
+        //{
+        //    var response = await Mediator.Send(new GetImageByIdQuery(id, postId), ct);
+        //    return StatusCode((int)response.StatusCode, response);
+        //}
     }
 }

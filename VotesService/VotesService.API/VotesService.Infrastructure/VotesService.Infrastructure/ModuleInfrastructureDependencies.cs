@@ -1,8 +1,14 @@
 ﻿using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using VotesService.Application.ExternalApiService.CommentServiceInterface;
+using VotesService.Application.ExternalApiService.PostServiceInterface;
+using VotesService.Application.ExternalApiService.UserServiceInterface;
 using VotesService.Application.Interface;
 using VotesService.Application.RepositoryInterface;
 using VotesService.Application.ServiceInterface;
+using VotesService.Infrastructure.Clients.CommentClientImplementaion;
+using VotesService.Infrastructure.Clients.PostClientImplementaion;
+using VotesService.Infrastructure.Clients.UserClientImplementaion;
 using VotesService.Infrastructure.DataBaseConfiguration;
 using VotesService.Infrastructure.InfrastructureBases;
 using VotesService.Infrastructure.RepositoryImplementation;
@@ -19,6 +25,22 @@ namespace VotesService
             services.AddHostedService<VotesIndexInitializer>();
             services.AddScoped<IVotesService, VotesService.Infrastructure.ServiceImplementation.VotesService>();
             services.AddScoped<IVotesRepository, VotesRepository>();
+
+
+            services.AddHttpClient<IUserClient, UserClient>(client =>
+            {
+                client.BaseAddress = new Uri(Configuration["Services:Auth:BaseUrl"]!);
+            });
+
+            services.AddHttpClient<ICommentClient, CommentClient>(client =>
+            {
+                client.BaseAddress = new Uri(Configuration["Services:PostAndComment:BaseUrl"]!);
+            });
+
+            services.AddHttpClient<IPostClient, PostClient>(client =>
+            {
+                client.BaseAddress = new Uri(Configuration["Services:PostAndComment:BaseUrl"]!);
+            });
             return services;
         }
     }

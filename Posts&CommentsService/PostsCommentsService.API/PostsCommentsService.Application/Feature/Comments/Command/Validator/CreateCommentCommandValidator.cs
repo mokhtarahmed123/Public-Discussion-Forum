@@ -6,9 +6,9 @@ public class CreateCommentCommandValidator : AbstractValidator<CreateCommentComm
 {
     public CreateCommentCommandValidator()
     {
-        RuleFor(x => x.PostId)
-            .NotEmpty().WithMessage("رقم البوست مطلوب.")
-            .Must(id => ObjectId.TryParse(id, out _)).WithMessage("رقم البوست غير صحيح.");
+        //RuleFor(x => x.PostId)
+        //    .NotEmpty().WithMessage("رقم البوست مطلوب.")
+        //    .Must(id => ObjectId.TryParse(id, out _)).WithMessage("رقم البوست غير صحيح.");
 
         RuleFor(x => x.Content)
             .NotEmpty().WithMessage("الكومنت مطلوب.")

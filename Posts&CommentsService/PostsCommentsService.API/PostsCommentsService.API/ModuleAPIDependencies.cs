@@ -8,6 +8,17 @@ namespace PostsCommentsService.API
         {
             services.Configure<PostsAndCommentsDatabaseSettings>(
                  configuration.GetSection("PostsAndCommentsDatabase"));
+
+            #region CORS
+            services.AddCors(options =>
+                     options.AddPolicy("CorsPolicy", policyBuilder =>
+                         policyBuilder.SetIsOriginAllowed(_ => true)
+
+                                      .AllowAnyMethod()
+                                      .AllowAnyHeader().AllowCredentials())
+
+                 );
+            #endregion
             return services;
         }
     }

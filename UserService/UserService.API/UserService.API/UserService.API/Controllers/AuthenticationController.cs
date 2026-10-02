@@ -160,6 +160,17 @@ namespace UserService.API.Controllers
             return NewResult(result);
         }
 
+        [HttpGet("GetUserById/{id}")]
+        [SwaggerOperation(Summary = "Gets a user by ID", Description = "Retrieves user information based on the provided user ID.")]
+        [SwaggerResponse(200, "User retrieved successfully", type: typeof(UserDto))]
+        [SwaggerResponse(404, "User not found")]
+        [SwaggerResponse(500, "An unexpected error occurred")]
+        public async Task<IActionResult> GetUserById([FromRoute] Guid id)
+        {
+            var result = await Mediator.Send(new GetUserByIdQuery(id));
+            return NewResult(result);
+        }
+
 
     }
 }

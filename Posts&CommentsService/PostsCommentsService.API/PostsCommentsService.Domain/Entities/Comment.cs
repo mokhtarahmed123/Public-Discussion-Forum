@@ -30,9 +30,8 @@ namespace PostsCommentsService.Domain.Entities
         public bool IsDeleted { get; set; }
         public DateTime? DeletedAt { get; set; }
 
-
-
-
+        [BsonElement("ImageUrls")]
+        public List<string> ImageUrls { get; set; } = new();
 
 
 

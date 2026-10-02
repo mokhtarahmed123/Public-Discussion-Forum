@@ -9,7 +9,7 @@ using PostsCommentsService.Application.ServiceInterface;
 namespace PostsCommentsService.Application.Feature.Comments.Query.Handler
 {
     public class GetRepliesQueryHandler : ResponseHandler,
-        IRequestHandler<GetRepliesQuery, Response<List<GetRepliesResult>>>
+        IRequestHandler<GetRepliesCommentsQuery, Response<List<GetRepliesResult>>>
     {
         private readonly ICommentsService commentsService;
         private readonly IMapper mapper;
@@ -21,7 +21,7 @@ namespace PostsCommentsService.Application.Feature.Comments.Query.Handler
         }
 
         public async Task<Response<List<GetRepliesResult>>> Handle(
-            GetRepliesQuery request, CancellationToken cancellationToken)
+            GetRepliesCommentsQuery request, CancellationToken cancellationToken)
         {
             if (!ObjectId.TryParse(request.ParentCommentId, out _))
                 return BadRequest<List<GetRepliesResult>>("رقم الكومنت غير صحيح.");

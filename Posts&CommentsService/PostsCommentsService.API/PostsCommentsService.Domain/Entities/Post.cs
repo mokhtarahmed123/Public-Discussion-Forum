@@ -32,6 +32,8 @@ namespace PostsCommentsService.Domain.Entities
         public bool IsPinned { get; set; }
         public bool IsLocked { get; set; }
 
+        [BsonElement("ImageUrls")]
+        public List<string> ImageUrls { get; set; } = new();
 
     }
 }

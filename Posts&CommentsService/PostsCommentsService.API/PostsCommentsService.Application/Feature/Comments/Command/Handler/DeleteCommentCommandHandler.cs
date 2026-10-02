@@ -7,6 +7,8 @@ namespace PostsCommentsService.Application.Feature.Comments.Command.Handler
 {
     public class DeleteCommentCommandHandler : ResponseHandler, IRequestHandler<DeleteCommentCommand, Response<string>>
     {
+        private const string DeletedContent = "تم حذف التعليق";
+
         private readonly ICommentsService commentsService;
         private readonly IPostsService postsService;
 
@@ -18,23 +20,24 @@ namespace PostsCommentsService.Application.Feature.Comments.Command.Handler
 
         public async Task<Response<string>> Handle(DeleteCommentCommand request, CancellationToken cancellationToken)
         {
-            var comment = await commentsService.GetByIdAsync(request.CommentId, cancellationToken);
+            var comment = await commentsService.GetByIdAsync(request.CommentId, request.PostId, cancellationToken);
 
-            if (comment is null || comment.IsDeleted)
+            if (comment is null || comment.IsDeleted || comment.Content == DeletedContent)
                 return NotFound<string>("الكومنت مش موجود.");
 
             if (comment.UserId != request.UserId)
                 return Forbidden<string>("مش مسموحلك تمسح الكومنت ده.");
 
-            // له ردود: نخفي المحتوى بس عشان الردود متبقاش من غير أب
+
             if (comment.RepliesCount > 0)
             {
-                comment.Content = "تم حذف التعليق";
+                comment.Content = DeletedContent;
+                comment.UpdatedAt = DateTime.UtcNow;
                 await commentsService.UpdateAsync(comment, cancellationToken);
                 return Deleted<string>();
             }
 
-            // مفيش ردود: soft delete
+
             comment.IsDeleted = true;
             comment.DeletedAt = DateTime.UtcNow;
             await commentsService.UpdateAsync(comment, cancellationToken);

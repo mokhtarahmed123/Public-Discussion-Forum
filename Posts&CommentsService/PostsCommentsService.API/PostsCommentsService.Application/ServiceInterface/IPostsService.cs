@@ -12,6 +12,10 @@ namespace PostsCommentsService.Application.ServiceInterface
         Task<bool> UpdateAsync(Post post, CancellationToken cancellationToken);
         Task<bool> DeleteAsync(string id, Guid userId, CancellationToken cancellationToken);
         Task IncrementCommentsCountAsync(string postId, int value, CancellationToken cancellationToken);
+        Task AddImagesAsync(string postId, List<string> imageUrls, CancellationToken cancellationToken);
+        Task<Post> GetImageByIdAsync(string postId, string imageId, CancellationToken cancellationToken);
+        Task<List<Post>> GetImagesByPostIdAsync(string postId, CancellationToken cancellationToken);
+
 
     }
 }

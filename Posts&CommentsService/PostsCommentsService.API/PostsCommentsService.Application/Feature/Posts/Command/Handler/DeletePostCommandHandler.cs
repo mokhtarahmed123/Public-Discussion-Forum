@@ -9,13 +9,17 @@ namespace PostsCommentsService.Application.Feature.Posts.Command.Handler
     {
         private readonly IPostsService postsService;
 
+
         public DeletePostCommandHandler(IPostsService postsService)
         {
             this.postsService = postsService;
+
         }
 
         public async Task<Response<string>> Handle(DeletePostCommand request, CancellationToken cancellationToken)
         {
+
+
             var post = await postsService.GetByIdAsync(request.Id, cancellationToken);
 
             if (post is null || post.IsDeleted)

@@ -31,10 +31,8 @@ namespace VotesService.API
                 app.UseSwagger();
                 app.UseSwaggerUI();
             }
-
+            app.UseCors("CorsPolicy");
             app.UseAuthorization();
-
-
             app.MapControllers();
 
             app.Run();

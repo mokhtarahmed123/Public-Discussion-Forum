@@ -1,8 +1,10 @@
 ﻿using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using PostsCommentsService.Application.ExternalApiService.UserServiceInterface;
 using PostsCommentsService.Application.RepositoryInterface;
 using PostsCommentsService.Application.ServiceInterface;
 using PostsCommentsService.Data.Interfaces;
+using PostsCommentsService.Infrastructure.Clients.UserClientImplementaion;
 using PostsCommentsService.Infrastructure.DataBaseConfiguration;
 using PostsCommentsService.Infrastructure.InfrastructureBases;
 using PostsCommentsService.Infrastructure.RepositoryImplementaion;
@@ -22,6 +24,12 @@ namespace PostsCommentsService.Infrastructure
             services.AddScoped<IPostsRepository, PostsRepository>();
             services.AddScoped<IPostsService, PostsService>();
             services.AddScoped<ICommentsService, CommentsService>();
+            services.AddScoped<IImageStorageService, ImageStorageService>();
+
+            services.AddHttpClient<IUserClient, UserClient>(client =>
+            {
+                client.BaseAddress = new Uri(Configuration["Services:Auth:BaseUrl"]!);
+            });
             return services;
         }
 

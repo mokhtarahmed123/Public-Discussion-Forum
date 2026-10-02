@@ -23,9 +23,8 @@ namespace RankingService.API
                 app.UseSwaggerUI();
             }
 
+
             app.UseAuthorization();
-
-
             app.MapControllers();
 
             app.Run();

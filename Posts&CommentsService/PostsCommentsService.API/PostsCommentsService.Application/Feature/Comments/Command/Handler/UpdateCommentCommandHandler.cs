@@ -7,6 +7,8 @@ namespace PostsCommentsService.Application.Feature.Comments.Command.Handler
 {
     public class UpdateCommentCommandHandler : ResponseHandler, IRequestHandler<UpdateCommentCommand, Response<string>>
     {
+        private const string DeletedContent = "تم حذف التعليق";
+
         private readonly ICommentsService commentsService;
 
         public UpdateCommentCommandHandler(ICommentsService commentsService)
@@ -16,9 +18,10 @@ namespace PostsCommentsService.Application.Feature.Comments.Command.Handler
 
         public async Task<Response<string>> Handle(UpdateCommentCommand request, CancellationToken cancellationToken)
         {
-            var comment = await commentsService.GetByIdAsync(request.Id, cancellationToken);
+            var comment = await commentsService.GetByIdAsync(request.Id, request.PostId, cancellationToken);
 
-            if (comment is null || comment.IsDeleted)
+
+            if (comment is null || comment.IsDeleted || comment.Content == DeletedContent)
                 return NotFound<string>("الكومنت مش موجود.");
 
             if (comment.UserId != request.UserId)

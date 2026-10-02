@@ -7,9 +7,6 @@
     {
         public UpdateCommentCommandValidator()
         {
-            //RuleFor(x => x.Id)
-            //    .NotEmpty().WithMessage("رقم الكومنت مطلوب.")
-            //    .Must(id => ObjectId.TryParse(id, out _)).WithMessage("رقم الكومنت غير صحيح.");
 
             RuleFor(x => x.Content)
                 .NotEmpty().WithMessage("الكومنت مطلوب.")

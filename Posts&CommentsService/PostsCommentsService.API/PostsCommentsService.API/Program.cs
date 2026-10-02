@@ -28,7 +28,7 @@ namespace PostsCommentsService.API
                 app.UseSwaggerUI();
             }
 
-
+            app.UseCors("CorsPolicy");
             app.UseAuthorization();
             app.MapControllers();
 

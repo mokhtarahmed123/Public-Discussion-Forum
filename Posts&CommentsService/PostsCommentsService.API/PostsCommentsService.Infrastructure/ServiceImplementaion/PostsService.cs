@@ -1,4 +1,5 @@
-﻿using MongoDB.Driver.Linq;
+﻿using MongoDB.Driver;
+using MongoDB.Driver.Linq;
 using PostsCommentsService.Application.RepositoryInterface;
 using PostsCommentsService.Application.ServiceInterface;
 using PostsCommentsService.Domain.Entities;
@@ -17,6 +18,11 @@ namespace PostsCommentsService.Infrastructure.ServiceImplementaion
         public async Task<Post> AddAsync(Post post, CancellationToken cancellationToken)
         {
             return await postsRepository.AddAsync(post, cancellationToken);
+        }
+
+        public async Task AddImagesAsync(string postId, List<string> imageUrls, CancellationToken cancellationToken)
+        {
+            await postsRepository.AddImagesAsync(postId, imageUrls, cancellationToken);
         }
 
         public async Task<bool> DeleteAsync(string id, Guid userId, CancellationToken cancellationToken)
@@ -46,6 +52,18 @@ namespace PostsCommentsService.Infrastructure.ServiceImplementaion
                 .Where(p => p.UserId == userId)
                 .OrderByDescending(p => p.CreatedAt)
                 .ToListAsync(cancellationToken);
+        }
+
+        public Task<Post> GetImageByIdAsync(string postId, string imageId, CancellationToken cancellationToken)
+        {
+            return postsRepository.GetImageByIdAsync(postId, imageId, cancellationToken);
+
+        }
+
+        public Task<List<Post>> GetImagesByPostIdAsync(string postId, CancellationToken cancellationToken)
+        {
+            return postsRepository.GetImagesByPostIdAsync(postId, cancellationToken);
+
         }
 
         public async Task<List<Post>> GetLatestAsync(int page, int pageSize, CancellationToken cancellationToken)

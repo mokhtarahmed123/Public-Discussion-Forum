@@ -21,6 +21,9 @@ namespace PostsCommentsService.Application.Feature.Posts.Command.Handler
 
             if (post is null || post.IsDeleted)
                 return NotFound<string>("البوست مش موجود.");
+            if (post.IsLocked)
+                return BadRequest<string>("البوست مقفول ومينفعش يتعدل.");
+
 
             if (post.UserId != request.UserId)
                 return Forbidden<string>("مش مسموحلك تعدل البوست ده.");

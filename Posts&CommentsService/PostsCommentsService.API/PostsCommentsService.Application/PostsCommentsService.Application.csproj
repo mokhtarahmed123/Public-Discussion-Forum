@@ -21,8 +21,4 @@
     <ProjectReference Include="..\PostsCommentsService.Domain\PostsCommentsService.Domain.csproj" />
   </ItemGroup>
 
-  <ItemGroup>
-    <Folder Include="Feature\Posts\Command\Results\" />
-  </ItemGroup>
-
 </Project>

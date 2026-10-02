@@ -13,6 +13,9 @@ namespace VotesService.Domain.Entities
         [BsonRepresentation(BsonType.ObjectId)]
         public string TargetId { get; set; } = null!;
 
+        [BsonRepresentation(BsonType.ObjectId)]
+        public string PostId { get; set; } = null!;
+
         [BsonRepresentation(BsonType.String)]
         public VoteTargetType TargetType { get; set; }
 

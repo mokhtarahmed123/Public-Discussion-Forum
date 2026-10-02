@@ -1,7 +1,6 @@
 ﻿using MediatR;
 using PostsCommentsService.Application.Bases;
 using PostsCommentsService.Domain.Enums;
-using System.Text.Json.Serialization;
 
 namespace PostsCommentsService.Application.Feature.Comments.Command.Model
 {
@@ -12,7 +11,7 @@ namespace PostsCommentsService.Application.Feature.Comments.Command.Model
         public TypeOfPosts TypeOfPosts { get; init; } = TypeOfPosts.None;
         public bool IsLocked { get; init; }
 
-        [JsonIgnore]
+        //[JsonIgnore]
         public Guid UserId { get; set; }
 
 
