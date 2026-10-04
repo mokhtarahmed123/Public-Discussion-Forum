@@ -1,4 +1,6 @@
-﻿using MediatR;
+﻿using Forum.Contracts;
+using MassTransit;
+using MediatR;
 using VotesService.Application.Bases;
 using VotesService.Application.ExternalApiService.CommentServiceInterface;
 using VotesService.Application.Feature.Votes.Command.Model;
@@ -7,23 +9,27 @@ using VotesService.Domain.Enum;
 
 namespace VotesService.Application.Feature.Votes.Command.Handler
 {
-    public class VoteCommentCommandHandler : ResponseHandler, IRequestHandler<VoteCommentCommand, Response<string>>
+    public class VoteCommentCommandHandler : ResponseHandler, IRequestHandler<VoteCommentCommand, Bases.Response<string>>
     {
         private readonly IVotesService votesService;
         private readonly ICommentClient commentClient;
+        private readonly IPublishEndpoint publishEndpoint;
 
-        public VoteCommentCommandHandler(IVotesService votesService, ICommentClient commentClient)
+        public VoteCommentCommandHandler(
+            IVotesService votesService,
+            ICommentClient commentClient,
+            IPublishEndpoint publishEndpoint)
         {
             this.votesService = votesService;
             this.commentClient = commentClient;
+            this.publishEndpoint = publishEndpoint;
         }
 
-        public async Task<Response<string>> Handle(VoteCommentCommand request, CancellationToken cancellationToken)
+        public async Task<Bases.Response<string>> Handle(VoteCommentCommand request, CancellationToken cancellationToken)
         {
             var existing = await votesService.GetUserVoteAsync(
                 request.UserId, VoteTargetType.Comment, request.TargetId, cancellationToken);
 
-            // 1) القفل: لو مقفول مفيش تغيير ولا إلغاء ولا تصويت جديد
             if (existing is not null && existing.Locked)
                 return BadRequest<string>("تصويتك مقفول ومينفعش يتغير.");
 
@@ -31,10 +37,10 @@ namespace VotesService.Application.Feature.Votes.Command.Handler
                 await votesService.IsLockedAsync(VoteTargetType.Comment, request.TargetId, cancellationToken))
                 return BadRequest<string>("التصويت مقفول على الكومنت ده.");
 
-            // 2) تصويت جديد
+            var newValue = ToValue(request.Type);
+
             if (existing is null)
             {
-                // الكومنت لازم يكون موجود (call خارجي، فبنعمله بس لما هنضيف تصويت جديد)
                 var comment = await commentClient.GetCommentByIdAsync(request.PostId, request.TargetId, cancellationToken);
                 if (comment is null || comment.IsDeleted)
                     return NotFound<string>("الكومنت مش موجود.");
@@ -49,22 +55,34 @@ namespace VotesService.Application.Feature.Votes.Command.Handler
                 };
 
                 var created = await votesService.AddAsync(vote, cancellationToken);
+                await Publish(request.TargetId, request.PostId, request.UserId, newValue, cancellationToken);
                 return Success(created.Id);
             }
 
-            // 3) نفس النوع تاني: إلغاء التصويت
             if (existing.Type == request.Type)
             {
                 await votesService.DeleteAsync(existing, cancellationToken);
+                await Publish(request.TargetId, request.PostId, request.UserId, -newValue, cancellationToken);
                 return Deleted<string>();
             }
 
-            // 4) نوع مختلف: تغيير التصويت
             existing.Type = request.Type;
             existing.UpdatedAt = DateTime.UtcNow;
             await votesService.UpdateAsync(existing, cancellationToken);
+            await Publish(request.TargetId, request.PostId, request.UserId, newValue * 2, cancellationToken);
 
             return Success(existing.Id);
         }
+
+        private static int ToValue(VoteType type) => type == VoteType.Up ? 1 : -1;
+
+        private Task Publish(string commentId, string PostId, Guid userId, int delta, CancellationToken ct) =>
+            publishEndpoint.Publish(new VoteCommentMessage
+            {
+                CommentId = commentId,
+                UserId = userId,
+                Delta = delta,
+                PostId = PostId,
+            }, ct);
     }
 }

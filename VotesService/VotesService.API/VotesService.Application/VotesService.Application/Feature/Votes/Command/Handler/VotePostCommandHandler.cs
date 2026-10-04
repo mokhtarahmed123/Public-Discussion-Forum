@@ -1,41 +1,47 @@
-﻿using MediatR;
+﻿using Forum.Contracts;
+using MassTransit;
+using MediatR;
 using VotesService.Application.Bases;
 using VotesService.Application.ExternalApiService.PostServiceInterface;
 using VotesService.Application.Feature.Votes.Command.Model;
 using VotesService.Application.ServiceInterface;
 using VotesService.Domain.Enum;
-
 namespace VotesService.Application.Feature.Votes.Command.Handler
 {
-    public class VotePostCommandHandler : ResponseHandler, IRequestHandler<VotePostCommand, Response<string>>
+    public class VotePostCommandHandler : ResponseHandler, IRequestHandler<VotePostCommand, Bases.Response<string>>
     {
         private readonly IVotesService votesService;
         private readonly IPostClient postClient;
+        private readonly IPublishEndpoint publishEndpoint;
 
-        public VotePostCommandHandler(IVotesService votesService, IPostClient postClient)
+        public VotePostCommandHandler(IVotesService votesService, IPostClient postClient, IPublishEndpoint publishEndpoint)
         {
             this.votesService = votesService;
             this.postClient = postClient;
+            this.publishEndpoint = publishEndpoint;
         }
 
-        public async Task<Response<string>> Handle(VotePostCommand request, CancellationToken cancellationToken)
+        public async Task<Bases.Response<string>> Handle(VotePostCommand request, CancellationToken ct)
         {
-            var existing = await votesService.GetUserVoteAsync(
-                request.UserId, VoteTargetType.Post, request.TargetId, cancellationToken);
 
+            var postId = request.TargetId; // string، الـ Validator اتأكد منه خلاص
+
+            var existing = await votesService.GetUserVoteAsync(
+                request.UserId, VoteTargetType.Post, request.TargetId, ct);
 
             if (existing is not null && existing.Locked)
                 return BadRequest<string>("تصويتك مقفول ومينفعش يتغير.");
 
             if (existing is null &&
-                await votesService.IsLockedAsync(VoteTargetType.Post, request.TargetId, cancellationToken))
+                await votesService.IsLockedAsync(VoteTargetType.Post, request.TargetId, ct))
                 return BadRequest<string>("التصويت مقفول على البوست ده.");
+
+            var newValue = ToValue(request.Type);
 
 
             if (existing is null)
             {
-
-                var post = await postClient.GetPostByIdAsync(request.TargetId, cancellationToken);
+                var post = await postClient.GetPostByIdAsync(request.TargetId, ct);
                 if (post is null || post.IsDeleted)
                     return NotFound<string>("البوست مش موجود.");
 
@@ -48,23 +54,36 @@ namespace VotesService.Application.Feature.Votes.Command.Handler
                     Type = request.Type
                 };
 
-                var created = await votesService.AddAsync(vote, cancellationToken);
+
+                var created = await votesService.AddAsync(vote, ct);
+                await Publish(postId, request.UserId, newValue, ct);
                 return Success(created.Id);
             }
 
 
             if (existing.Type == request.Type)
             {
-                await votesService.DeleteAsync(existing, cancellationToken);
+                await votesService.DeleteAsync(existing, ct);
+                await Publish(postId, request.UserId, -newValue, ct);
                 return Deleted<string>();
             }
 
-
             existing.Type = request.Type;
             existing.UpdatedAt = DateTime.UtcNow;
-            await votesService.UpdateAsync(existing, cancellationToken);
+            await votesService.UpdateAsync(existing, ct);
+            await Publish(postId, request.UserId, newValue * 2, ct);
 
             return Success(existing.Id);
         }
+
+        private static int ToValue(VoteType type) => type == VoteType.Up ? 1 : -1;
+
+        private Task Publish(string postId, Guid userId, int delta, CancellationToken ct) =>
+            publishEndpoint.Publish(new VotePostMessage
+            {
+                PostId = postId,
+                UserId = (userId),
+                Delta = delta
+            }, ct);
     }
 }

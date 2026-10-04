@@ -1,4 +1,5 @@
 ﻿using FluentValidation;
+using MassTransit;
 using MediatR;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -6,7 +7,6 @@ using System.Reflection;
 using VotesService.Application.Bases;
 using VotesService.Application.Behavior;
 using VotesService.Application.Interface;
-
 namespace VotesService.Application
 {
     public static class ModuleApplicationDependencies
@@ -22,6 +22,22 @@ namespace VotesService.Application
             services.AddTransient(typeof(IPipelineBehavior<,>), typeof(ValidationBehavior<,>));
 
             services.AddScoped<IResponseHandler, ResponseHandler>();
+
+            services.AddMassTransit(x =>
+            {
+                x.UsingRabbitMq((ctx, cfg) =>
+                {
+                    cfg.Host("localhost", "/", h =>
+                    {
+                        h.Username("user");
+                        h.Password("mypassword");
+                    });
+                    cfg.ConfigureEndpoints(ctx);
+                });
+            });
+
+
+
             return services;
 
         }

@@ -17,9 +17,13 @@ namespace VotesService.Application.ServiceInterface
         Task<VoteSummary> GetSummaryAsync(VoteTargetType targetType, string targetId, CancellationToken cancellationToken);
 
         Task<List<Votes>> GetUserVotesAsync(Guid userId, VoteTargetType targetType, IEnumerable<string> targetIds, CancellationToken cancellationToken);
+        Task<List<TopVoteResult>> GetTopTenAsync(VoteTargetType targetType, CancellationToken cancellationToken);
+
     }
     public record VoteSummary(int UpVotes, int DownVotes)
     {
         public int Score => UpVotes - DownVotes;
     }
+    public record TopVoteResult(string TargetId, VoteTargetType TargetType, int Score, string? PostId, string? CommentId);
+
 }

@@ -14,10 +14,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\RankingService.Application\RankingService.Application\RankingService.Application.csproj" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <Folder Include="Controllers\" />
+    <ProjectReference Include="..\RankingService.Infrastructure\RankingService.Infrastructur\RankingService.Infrastructure.csproj" />
   </ItemGroup>
 
 </Project>

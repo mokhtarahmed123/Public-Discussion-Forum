@@ -7,25 +7,20 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\..\..\..\Forum.Contracts\Forum.Contracts\Forum.Contracts\Forum.Contracts.csproj" />
     <ProjectReference Include="..\..\RankingService.Domain\RankingService.Domain\RankingService.Domain.csproj" />
   </ItemGroup>
 
   <ItemGroup>
-    <Folder Include="Bases\" />
-    <Folder Include="Behavior\" />
-    <Folder Include="Feature\" />
-    <Folder Include="HandlerMiddleware\" />
-    <Folder Include="Interface\" />
-    <Folder Include="ServiceInterface\" />
-    <Folder Include="RepositoryInterface\" />
-  </ItemGroup>
-
-  <ItemGroup>
+    <PackageReference Include="AutoMapper" Version="16.2.0" />
     <PackageReference Include="FluentValidation" Version="12.1.1" />
     <PackageReference Include="FluentValidation.DependencyInjectionExtensions" Version="12.1.1" />
+    <PackageReference Include="MassTransit" Version="8.1.0" />
+    <PackageReference Include="MassTransit.RabbitMQ" Version="8.1.0" />
     <PackageReference Include="MediatR" Version="14.2.0" />
     <PackageReference Include="Microsoft.AspNetCore.Http.Abstractions" Version="2.3.13" />
     <PackageReference Include="Microsoft.Extensions.Hosting.Abstractions" Version="11.0.0-rc.1.26425.128" />
+    <PackageReference Include="SendGrid" Version="9.29.3" />
   </ItemGroup>
 
 </Project>

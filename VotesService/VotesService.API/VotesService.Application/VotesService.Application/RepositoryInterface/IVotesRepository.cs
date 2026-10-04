@@ -5,5 +5,11 @@ namespace VotesService.Application.RepositoryInterface
 {
     public interface IVotesRepository : IGenericRepositoryAsync<Votes>
     {
+
+
     }
+
+
+
+
 }

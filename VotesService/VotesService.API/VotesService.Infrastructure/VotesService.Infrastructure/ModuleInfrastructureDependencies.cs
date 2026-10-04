@@ -26,7 +26,6 @@ namespace VotesService
             services.AddScoped<IVotesService, VotesService.Infrastructure.ServiceImplementation.VotesService>();
             services.AddScoped<IVotesRepository, VotesRepository>();
 
-
             services.AddHttpClient<IUserClient, UserClient>(client =>
             {
                 client.BaseAddress = new Uri(Configuration["Services:Auth:BaseUrl"]!);

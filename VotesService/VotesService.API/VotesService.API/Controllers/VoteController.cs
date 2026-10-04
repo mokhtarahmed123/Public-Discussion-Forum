@@ -23,7 +23,7 @@ namespace VotesService.API.Controllers
         [SwaggerResponse(400, "Invalid vote data or voting is locked", type: typeof(Response<string>))]
         [SwaggerResponse(404, "Post not found", type: typeof(Response<string>))]
         [SwaggerResponse(500, "An unexpected error occurred")]
-        public async Task<IActionResult> VotePost(string postId, [FromBody] VotePostCommand command, CancellationToken cancellationToken)
+        public async Task<IActionResult> VotePost([FromRoute] string postId, [FromBody] VotePostCommand command, CancellationToken cancellationToken)
         {
             command.TargetId = postId;
             return NewResult(await Mediator.Send(command, cancellationToken));
@@ -118,6 +118,22 @@ namespace VotesService.API.Controllers
             command.TargetId = commentId;
             command.PostId = postId;
             return NewResult(await Mediator.Send(command, cancellationToken));
+        }
+
+
+        [HttpGet("Votes/TopTenPosts")]
+        public async Task<IActionResult> GetTopTenPost()
+        {
+            var query = await Mediator.Send(new GetTopTenPostAsync());
+            return NewResult(query);
+
+        }
+        [HttpGet("Votes/TopTenComments")]
+        public async Task<IActionResult> GetTopTenComments()
+        {
+            var query = await Mediator.Send(new GetTopTenCommentAsync());
+            return NewResult(query);
+
         }
     }
 }
